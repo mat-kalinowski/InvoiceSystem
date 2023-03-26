@@ -15,7 +15,6 @@ services:
   #     - "3302:3306"
   #   networks:
   #     - db-net
-
   db:
     image: postgres
     restart: always
@@ -30,7 +29,6 @@ services:
   backend:
     restart: always
     container_name: backend
-    command : "python manage.py migrate"
     # env_file:
       # - ./backend/settings.ini
     build:
@@ -57,9 +55,9 @@ services:
     stdin_open: true
     volumes:
       - ./frontend:/app/frontend
-      - /app/node_modules
-    # depends_on:
-    #   - backend
+      - /app/frontend/node_modules
+    depends_on:
+      - backend
 
 networks:
   db-net:
