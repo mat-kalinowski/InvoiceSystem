@@ -1,26 +1,19 @@
 version: "3.2"
 services:
-  # db:
-  #   restart: always
-  #   image: mariadb:5.5
-  #   environment:
-  #     - MYSQL_HOST=localhost
-  #     - MYSQL_PORT=3306
-  #     - MYSQL_ROOT_HOST=%
-  #     - MYSQL_DATABASE=bug
-  #     - MYSQL_USER=<<username>>
-  #     - MYSQL_PASSWORD=<<password>>
-  #     - MYSQL_ROOT_PASSWORD=<<rootpassword>>
-  #   ports:
-  #     - "3302:3306"
-  #   networks:
-  #     - db-net
   db:
-    image: postgres
+    image: postgres:14.3
     restart: always
     container_name: db
     environment:
-      POSTGRES_PASSWORD: example
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+    expose:
+      - 5432
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -29,8 +22,6 @@ services:
   backend:
     restart: always
     container_name: backend
-    # env_file:
-      # - ./backend/settings.ini
     build:
       context: ./backend/
       dockerfile: Dockerfile
@@ -39,7 +30,8 @@ services:
     volumes:
       - ./backend:/app/backend
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - db-net
 
